@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuarios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+</head>
+<body>
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="bg-white p-8 rounded shadow-md w-96">
+            <h2 class="text-2xl font-bold mb-6 text-center">Registro de Usuarios</h2>
+            <form id="registerForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="username">Nombre de usuario</label>
+                    <input type="text" id="username" class="w-full p-2 border border-gray-300 rounded mt-1" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="email">Correo electrónico</label>
+                    <input type="email" id="email" class="w-full p-2 border border-gray-300 rounded mt-1" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="password">Contraseña</label>
+                    <input type="password" id="password" class="w-full p-2 border border-gray-300 rounded mt-1" required>
+                    <button type="button" id="show-password" class="text-gray-600 hover:text-gray-900 transition duration-300 ease-in-out">Mostrar</button>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="confirmPassword">Confirmar contraseña</label>
+                    <input type="password" id="confirmPassword" class="w-full p-2 border border-gray-300 rounded mt-1" required>
+                    <button type="button" id="show-confirm-password" class="text-gray-600 hover:text-gray-900 transition duration-300 ease-in-out">Mostrar</button>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Registrarse</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('registerForm');
+
+        registerForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert("Las contraseñas no coinciden.");
+                return;
+            }
+
+            // Aquí puedes hacer la llamada a tu backend utilizando la API Fetch
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    email,
+                    password // No enviar confirmPassword por seguridad y ya verificamos arriba que coinciden.
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Aquí puedes manejar la respuesta de tu backend
+                console.log(data);
+                if (data.success) {
+                    alert('Registro exitoso.');
+                    window.location.href = '/login.html'; // Redireccionar después del registro exitoso (Modifica la ruta según tu necesidad).
+                } else {
+                    alert('Error en el registro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error durante el registro:', error);
+                alert('Error en el registro.');
+            });
+        });
+
+        const togglePasswordVisibility = (buttonElement, inputElement) => {
+            buttonElement.addEventListener('click', () => {
+                if (inputElement.type === 'password') {
+                    inputElement.type = 'text';
+                    buttonElement.textContent = 'Ocultar'; // Cambiar el texto del botón para indicar la acción contraria
+                } else {
+                    inputElement.type = 'password';
+                    buttonElement.textContent = 'Mostrar'; // Volver al texto original
+                }
+            });
+        };
+
+        togglePasswordVisibility(document.getElementById('show-password'), document.getElementById('password'));
+        togglePasswordVisibility(document.getElementById('show-confirm-password'), document.getElementById('confirmPassword'));
+
+    </script>
+</body>
+</html>
